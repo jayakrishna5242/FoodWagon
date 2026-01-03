@@ -24,6 +24,7 @@ public class Order {
     private Long restaurantId;
 
     private String restaurantName;
+    private String restaurantImageUrl;
 
     private Double totalAmount;
 

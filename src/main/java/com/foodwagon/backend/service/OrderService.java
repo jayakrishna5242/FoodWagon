@@ -4,6 +4,8 @@ package com.foodwagon.backend.service;
 import com.foodwagon.backend.dto.order.*;
 import com.foodwagon.backend.entity.Order;
 import com.foodwagon.backend.entity.OrderItem;
+import com.foodwagon.backend.entity.Restaurant;
+import com.foodwagon.backend.entity.User;
 import com.foodwagon.backend.enums.OrderStatus;
 import com.foodwagon.backend.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -11,20 +13,28 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
+    private final UserRepository userRepository;
     private final OrderRepository orderRepository;
-
+    private final RestaurantRepository restaurantRepository;
     /* ---------------- PLACE ORDER ---------------- */
     public OrderResponse placeOrder(CreateOrderRequest request) {
+        // Fetch restaurant
+        Restaurant restaurant = restaurantRepository
+                .findById(request.restaurantId())
+                .orElse(null); // later: handle not found properly
+
+        String restaurantName = restaurant != null ? restaurant.getName() : null;
 
         Order order = Order.builder()
                 .userId(request.userId())
                 .restaurantId(request.restaurantId())
-                .restaurantName("The Sizzling Grill") // later fetch dynamically
+                .restaurantName(restaurantName)          // ✅ use dynamic name
                 .totalAmount(request.totalAmount())
                 .deliveryAddress(request.deliveryAddress())
                 .paymentMethod(request.paymentMethod())
@@ -48,12 +58,31 @@ public class OrderService {
         return mapToOrderResponse(saved);
     }
 
+
     /* ---------------- USER ORDERS ---------------- */
     public List<CustomerOrderHistoryResponse> getUserOrders(Long userId) {
         return orderRepository.findByUserId(userId)
                 .stream()
                 .map(this::mapToCustomerHistory)
                 .toList();
+    }
+    private CustomerOrderHistoryResponse mapToCustomerHistory(Order order) {
+        // Fetch restaurant for this order
+        Restaurant restaurant = restaurantRepository
+                .findById(order.getRestaurantId())
+                .orElse(null); // later: handle not found properly
+
+        String imageUrl = restaurant != null ? restaurant.getImageUrl() : null;
+
+        return new CustomerOrderHistoryResponse(
+                order.getId(),
+                order.getRestaurantName(),   // from order
+                imageUrl,                    // from restaurants table
+                order.getTotalAmount(),
+                order.getStatus(),
+                order.getCreatedAt(),
+                mapItems(order)
+        );
     }
 
     /* ---------------- RESTAURANT QUEUE ---------------- */
@@ -88,28 +117,28 @@ public class OrderService {
         );
     }
 
-    private CustomerOrderHistoryResponse mapToCustomerHistory(Order order) {
-        return new CustomerOrderHistoryResponse(
-                order.getId(),
-                order.getRestaurantName(),
-                order.getTotalAmount(),
-                order.getStatus(),
-                order.getCreatedAt(),
-                mapItems(order)
-        );
-    }
+
 
     private RestaurantOrderQueueResponse mapToRestaurantQueue(Order order) {
+        User user = userRepository.findById(order.getUserId()).orElse(null);
+
+        String userPhone = (user != null && user.getId() != null)
+                ? user.getPhone().toString()
+                : null;
+        String userName = (user != null) ? user.getName() : null;
+
         return new RestaurantOrderQueueResponse(
                 order.getId(),
-                "John Doe",
-                "9876543210",
+                userName,
+                userPhone,
                 mapItems(order),
                 order.getTotalAmount(),
                 order.getStatus(),
                 order.getCreatedAt()
         );
     }
+
+
 
     private List<OrderItemDTO> mapItems(Order order) {
         return order.getItems().stream()

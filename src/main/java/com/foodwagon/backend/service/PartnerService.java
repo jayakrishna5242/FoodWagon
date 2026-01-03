@@ -21,16 +21,16 @@ public class PartnerService {
     /* -------- REGISTER PARTNER -------- */
     public AuthResponse register(PartnerRegisterRequest r) {
 
-        userRepository.findByEmail(r.email())
-                .ifPresent(u -> {
-                    throw new RuntimeException("Email already exists");
-                });
+        // Email already exists -> fail quietly for now
+        if (userRepository.findByEmail(r.email()).isPresent()) {
+            return null; // later: throw custom exception / return proper error DTO
+        }
 
         User partner = User.builder()
                 .name(r.ownerName())
                 .email(r.email())
                 .phone(r.phone())
-                .password(r.password())
+                .password(r.password()) // later: encode/hash
                 .role(UserRole.PARTNER)
                 .build();
 
@@ -39,7 +39,7 @@ public class PartnerService {
         Restaurant restaurant = Restaurant.builder()
                 .name(r.restaurantName())
                 .city(r.city())
-                .location(r.address())   // ✅ mapped correctly
+                .location(r.address())
                 .cuisines(r.cuisines())
                 .imageUrl(r.imageUrl())
                 .costForTwo(r.costForTwo())
@@ -61,12 +61,13 @@ public class PartnerService {
     /* -------- LOGIN PARTNER -------- */
     public AuthResponse login(PartnerLoginRequest r) {
 
-        User user = userRepository.findByEmail(r.email())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+        User user = userRepository.findByEmail(r.email()).orElse(null);
 
-        if (!user.getPassword().equals(r.password())
+        // No user or wrong password/role -> fail quietly for now
+        if (user == null
+                || !user.getPassword().equals(r.password())
                 || user.getRole() != UserRole.PARTNER) {
-            throw new RuntimeException("Invalid credentials");
+            return null; // later: custom exception + proper HTTP status
         }
 
         UserResponse userResponse = new UserResponse(
@@ -81,7 +82,8 @@ public class PartnerService {
 
     /* -------- GET PARTNER RESTAURANT -------- */
     public Restaurant getRestaurant(Long userId) {
-        return restaurantRepository.findByOwnerId(userId)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        // If not found, just return null for now
+        return restaurantRepository.findByOwnerId(userId).orElse(null);
     }
 }

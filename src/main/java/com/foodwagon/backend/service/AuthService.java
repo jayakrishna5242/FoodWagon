@@ -16,21 +16,21 @@ public class AuthService {
     /* -------- REGISTER -------- */
     public AuthResponse register(RegisterRequest r) {
 
-        userRepository.findByEmail(r.email())
-                .ifPresent(u -> {
-                    throw new RuntimeException("Email already exists");
-                });
-        if (r.phone() != null) {
-            userRepository.findByPhone(r.phone())
-                    .ifPresent(u -> {
-                        throw new RuntimeException("Phone already exists");
-                    });
+        // If email already exists, just return null or an empty response for now
+        if (userRepository.findByEmail(r.email()).isPresent()) {
+            return null; // or new AuthResponse(null);
         }
+
+        // If phone is provided and already exists, same behavior
+        if (r.phone() != null && userRepository.findByPhone(r.phone()).isPresent()) {
+            return null; // or new AuthResponse(null);
+        }
+
         User user = User.builder()
                 .name(r.name())
                 .email(r.email())
                 .phone(r.phone())
-                .password(r.password())
+                .password(r.password()) // later: encode/hash
                 .role(UserRole.CUSTOMER)
                 .build();
 
@@ -49,14 +49,20 @@ public class AuthService {
     /* -------- LOGIN -------- */
     public AuthResponse login(LoginRequest r) {
 
+        // Try email, then phone; if not found, return null for now
         User user = userRepository.findByEmail(r.identifier())
                 .orElseGet(() ->
                         userRepository.findByPhone(r.identifier())
-                                .orElseThrow(() -> new RuntimeException("Invalid credentials"))
+                                .orElse(null)
                 );
 
+        if (user == null) {
+            return null; // invalid credentials, no exception yet
+        }
+
+        // Plain equality check for now; later: passwordEncoder.matches(...)
         if (!user.getPassword().equals(r.password())) {
-            throw new RuntimeException("Invalid credentials");
+            return null; // invalid credentials
         }
 
         UserResponse userResponse = new UserResponse(

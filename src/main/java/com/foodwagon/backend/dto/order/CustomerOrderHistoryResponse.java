@@ -7,6 +7,7 @@ import java.util.List;
 public record CustomerOrderHistoryResponse(
         Long id,
         String restaurantName,
+        String restaurantImageUrl,
         Double totalAmount,
         OrderStatus status,
         Instant date,
