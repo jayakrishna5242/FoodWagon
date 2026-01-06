@@ -17,6 +17,7 @@ public class MenuItem {
     private String name;
     private String description;
     private Integer price;
+    @Column(length = 500)
     private String imageUrl;
     private Boolean isVeg;
     private String category;

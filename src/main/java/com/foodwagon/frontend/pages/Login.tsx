@@ -63,6 +63,10 @@ const Login: React.FC = () => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
+  const clearError = () => {
+    if (error) setError('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -96,6 +100,7 @@ const Login: React.FC = () => {
       login(authResponse.token, authResponse.user);
       navigate('/');
     } catch (err: any) {
+      // Displays the specific error message from the backend (e.g. 409 Conflict 'User already exists')
       setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -156,9 +161,9 @@ const Login: React.FC = () => {
           <div className="mt-4 bg-white rounded-2xl shadow-lg border border-[#f3f4f6] p-6 md:p-7">
             <div aria-live="polite" className="min-h-[1.2rem]">
               {error && (
-                <div className="bg-red-50 text-red-600 text-sm p-3 border border-red-100 rounded mb-3 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {error}
+                <div className="bg-red-50 text-red-600 text-sm p-3 border border-red-100 rounded mb-3 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <span className="font-semibold">{error}</span>
                 </div>
               )}
             </div>
@@ -174,7 +179,7 @@ const Login: React.FC = () => {
                     type="text"
                     value={name}
                     onBlur={() => handleBlur('name')}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => { setName(e.target.value); clearError(); }}
                     placeholder="Enter your name"
                     required={!isLogin}
                     className={inputClass('name', nameValid)}
@@ -189,14 +194,14 @@ const Login: React.FC = () => {
                 <span className="text-[11px] uppercase text-gray-500">Method</span>
                 <button
                   type="button"
-                  onClick={() => {setUsePhone(false); setTouched({});}}
+                  onClick={() => {setUsePhone(false); setTouched({}); clearError();}}
                   className={`px-3 py-1.5 rounded-full border text-xs transition ${!usePhone ? 'bg-[#fff4eb] border-[#f97316] text-[#b45309]' : 'bg-white border-gray-200 text-gray-600'}`}
                 >
                   Email
                 </button>
                 <button
                   type="button"
-                  onClick={() => {setUsePhone(true); setTouched({});}}
+                  onClick={() => {setUsePhone(true); setTouched({}); clearError();}}
                   className={`px-3 py-1.5 rounded-full border text-xs transition ${usePhone ? 'bg-[#fff4eb] border-[#f97316] text-[#b45309]' : 'bg-white border-gray-200 text-gray-600'}`}
                 >
                   Phone
@@ -213,7 +218,7 @@ const Login: React.FC = () => {
                     type="email"
                     value={email}
                     onBlur={() => handleBlur('email')}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); clearError(); }}
                     placeholder="you@example.com"
                     required={!usePhone}
                     className={inputClass('email', emailValid)}
@@ -234,7 +239,7 @@ const Login: React.FC = () => {
                     type="tel"
                     value={phone}
                     onBlur={() => handleBlur('phone')}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    onChange={(e) => { setPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); clearError(); }}
                     placeholder="10-digit number"
                     required={usePhone}
                     className={inputClass('phone', phoneValid)}
@@ -255,7 +260,7 @@ const Login: React.FC = () => {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onBlur={() => handleBlur('password')}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); clearError(); }}
                     placeholder="Enter password"
                     required
                     className={inputClass('password', isLogin ? password.length >= 6 : passwordValid)}
@@ -284,7 +289,7 @@ const Login: React.FC = () => {
                     type="password"
                     value={confirmPassword}
                     onBlur={() => handleBlur('confirmPassword')}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => { setConfirmPassword(e.target.value); clearError(); }}
                     placeholder="Repeat password"
                     required={!isLogin}
                     className={inputClass('confirmPassword', passwordsMatch && confirmPassword.length > 0)}
@@ -313,7 +318,7 @@ const Login: React.FC = () => {
                       <input
                         type="text"
                         value={referral}
-                        onChange={(e) => setReferral(e.target.value)}
+                        onChange={(e) => { setReferral(e.target.value); clearError(); }}
                         placeholder="Enter referral code"
                         className="w-full px-4 py-3 border border-gray-200 rounded-md outline-none text-sm text-black transition focus:border-[#fc8019]"
                       />

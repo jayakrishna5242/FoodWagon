@@ -16,15 +16,12 @@ public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     private String city;
-
     // ✅ THIS MUST BE location
     private String location;
-
     private String cuisines;
+    @Column(length = 500)
     private String imageUrl;
     private String costForTwo;
 

@@ -4,11 +4,45 @@ import { Restaurant, MenuItem, Order, AuthResponse, User } from '../types';
 const BASE_URL = 'http://localhost:8080/api';
 
 /**
- * HELPER: Get current user from storage to avoid changing component signatures
+ * HELPER: Normalizes restaurant data
+ */
+const normalizeRestaurant = (r: any): Restaurant => {
+  if (!r) return r;
+  const rawCuisines = r.cuisines || r.cuisine || r.cuisineTypes || [];
+  return {
+    ...r,
+    id: Number(r.id),
+    name: r.name || 'Unnamed Restaurant',
+    imageUrl: r.imageUrl || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000',
+    location: r.location || 'Local Area',
+    city: r.city || 'Bangalore',
+    rating: r.rating || 0,
+    costForTwo: r.costForTwo || '₹500',
+    deliveryTime: r.deliveryTime || '30-40 mins',
+    cuisines: typeof rawCuisines === 'string' 
+      ? rawCuisines.split(',').map((c: string) => c.trim()) 
+      : (Array.isArray(rawCuisines) ? rawCuisines : [])
+  };
+};
+
+/**
+ * HELPER: Get current user from storage
  */
 const getStoredUser = (): User | null => {
   const saved = localStorage.getItem('foodwagon_user');
   return saved ? JSON.parse(saved) : null;
+};
+
+/**
+ * HELPER: Parse backend error message
+ */
+const getErrorMessage = async (response: Response, fallback: string): Promise<string> => {
+  try {
+    const errorData = await response.json();
+    return errorData.message || fallback;
+  } catch (e) {
+    return fallback;
+  }
 };
 
 /**
@@ -22,14 +56,13 @@ export const loginUser = async (identifier: string, password: string): Promise<A
   });
   
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Login failed');
+    const msg = await getErrorMessage(response, 'Login failed');
+    throw new Error(msg);
   }
   
   const data = await response.json();
-  // Ensure we return a token even if backend doesn't provide one (for frontend compatibility)
   return {
-    token: `session_${Date.now()}`, 
+    token: data.token || `session_${Date.now()}`, 
     user: data.user
   };
 };
@@ -40,7 +73,7 @@ export const registerUser = async (fullName: string, identifier: string, passwor
     name: fullName,
     email: isEmail ? identifier : `${identifier}@placeholder.com`,
     password: password,
-    phone: !isEmail ? identifier : "0000000000" // Fallback if only email provided
+    phone: !isEmail ? identifier : "0000000000"
   };
 
   const response = await fetch(`${BASE_URL}/auth/register`, {
@@ -49,10 +82,14 @@ export const registerUser = async (fullName: string, identifier: string, passwor
     body: JSON.stringify(payload),
   });
 
-  if (!response.ok) throw new Error("Registration failed");
+  if (!response.ok) {
+    const msg = await getErrorMessage(response, 'Registration failed');
+    throw new Error(msg);
+  }
+
   const data = await response.json();
   return {
-    token: `session_${Date.now()}`,
+    token: data.token || `session_${Date.now()}`,
     user: data.user
   };
 };
@@ -64,10 +101,14 @@ export const loginPartner = async (email: string, password: string): Promise<Aut
     body: JSON.stringify({ email, password }),
   });
 
-  if (!response.ok) throw new Error("Partner login failed");
+  if (!response.ok) {
+    const msg = await getErrorMessage(response, 'Partner login failed');
+    throw new Error(msg);
+  }
+  
   const data = await response.json();
   return {
-    token: `partner_session_${Date.now()}`,
+    token: data.token || `partner_session_${Date.now()}`,
     user: data.user
   };
 };
@@ -79,10 +120,14 @@ export const registerPartner = async (data: any): Promise<AuthResponse> => {
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) throw new Error("Partner registration failed");
+  if (!response.ok) {
+    const msg = await getErrorMessage(response, 'Partner registration failed');
+    throw new Error(msg);
+  }
+  
   const result = await response.json();
   return {
-    token: `partner_session_${Date.now()}`,
+    token: result.token || `partner_session_${Date.now()}`,
     user: result.user
   };
 };
@@ -94,7 +139,8 @@ export const fetchRestaurants = async (city?: string): Promise<Restaurant[]> => 
   const url = city ? `${BASE_URL}/restaurants?city=${encodeURIComponent(city)}` : `${BASE_URL}/restaurants`;
   const response = await fetch(url);
   if (!response.ok) return [];
-  return response.json();
+  const data = await response.json();
+  return Array.isArray(data) ? data.map(normalizeRestaurant) : [];
 };
 
 export const fetchMenu = async (restaurantId: number): Promise<MenuItem[]> => {
@@ -106,7 +152,11 @@ export const fetchMenu = async (restaurantId: number): Promise<MenuItem[]> => {
 export const searchGlobal = async (query: string): Promise<{ restaurants: Restaurant[], items: MenuItem[] }> => {
   const response = await fetch(`${BASE_URL}/restaurants/search?q=${encodeURIComponent(query)}`);
   if (!response.ok) return { restaurants: [], items: [] };
-  return response.json();
+  const data = await response.json();
+  return {
+    restaurants: data.restaurants.map(normalizeRestaurant),
+    items: data.items
+  };
 };
 
 /**
@@ -135,8 +185,6 @@ export const toggleMenuItemStock = async (itemId: number): Promise<MenuItem> => 
  */
 export const placeOrder = async (orderData: any): Promise<Order> => {
   const user = getStoredUser();
-  
-  // Construct the payload to match your @POST /api/orders spec exactly
   const payload = {
     userId: user?.id,
     restaurantId: orderData.restaurantId,
@@ -174,7 +222,6 @@ export const fetchPartnerOrders = async (): Promise<Order[]> => {
   const user = getStoredUser();
   if (!user) return [];
 
-  // First get the restaurant to get the restaurantId
   const restaurant = await fetchPartnerRestaurant(user.id);
   if (!restaurant) return [];
 
@@ -191,7 +238,6 @@ export const updateOrderStatus = async (orderId: number, status: Order['status']
   });
   
   if (!response.ok) throw new Error("Failed to update status");
-  // The spec says response mirrors the request { status: "..." }
   return response.json();
 };
 
@@ -201,16 +247,17 @@ export const updateOrderStatus = async (orderId: number, status: Order['status']
 export const fetchPartnerRestaurant = async (partnerId: number): Promise<Restaurant | null> => {
   const response = await fetch(`${BASE_URL}/partner/${partnerId}/restaurant`);
   if (!response.ok) return null;
-  return response.json();
+  const data = await response.json();
+  return normalizeRestaurant(data);
 };
 
 export const updateRestaurantDetails = async (restaurantId: number, details: Partial<Restaurant>): Promise<Restaurant> => {
-  // Assuming a PUT endpoint exists based on similar patterns
   const response = await fetch(`${BASE_URL}/restaurants/${restaurantId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(details),
   });
   if (!response.ok) throw new Error("Update failed");
-  return response.json();
+  const data = await response.json();
+  return normalizeRestaurant(data);
 };

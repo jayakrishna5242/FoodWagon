@@ -16,15 +16,14 @@ public class AuthService {
     /* -------- REGISTER -------- */
     public AuthResponse register(RegisterRequest r) {
 
-        // If email already exists, just return null or an empty response for now
-        if (userRepository.findByEmail(r.email()).isPresent()) {
-            return null; // or new AuthResponse(null);
+        boolean userExists =
+                (r.email() != null && userRepository.findByEmail(r.email()).isPresent())
+                        || (!r.phone().equals("0000000000")  && userRepository.findByPhone(r.phone()).isPresent());
+
+        if (userExists) {
+            return null; // user already present (either email or phone)
         }
 
-        // If phone is provided and already exists, same behavior
-        if (r.phone() != null && userRepository.findByPhone(r.phone()).isPresent()) {
-            return null; // or new AuthResponse(null);
-        }
 
         User user = User.builder()
                 .name(r.name())

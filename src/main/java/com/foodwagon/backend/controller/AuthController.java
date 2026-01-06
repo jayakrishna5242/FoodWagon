@@ -3,7 +3,10 @@ package com.foodwagon.backend.controller;
 import com.foodwagon.backend.service.AuthService;
 import com.foodwagon.backend.dto.auth.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -11,16 +14,40 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 public class AuthController {
 
-    private final AuthService service;
-
-    @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest r) {
-        return service.login(r);
-    }
+    private final AuthService authService;
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegisterRequest r) {
-        return service.register(r);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+
+        AuthResponse result = authService.register(request);
+
+        if (result == null) {
+            ApiErrorResponse error = new ApiErrorResponse(
+                    "User with this email / phone already exists",
+                    409,
+                    Instant.now()
+            );
+            return ResponseEntity.status(409).body(error);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+        AuthResponse result = authService.login(request);
+
+        if (result == null) {
+            ApiErrorResponse error = new ApiErrorResponse(
+                    "Invalid email or password",
+                    401,
+                    Instant.now()
+            );
+            return ResponseEntity.status(401).body(error);
+        }
+
+        return ResponseEntity.ok(result);
+    }
 }
+

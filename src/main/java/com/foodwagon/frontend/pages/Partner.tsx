@@ -45,15 +45,15 @@ const Partner: React.FC = () => {
         <div className="container mx-auto px-4 max-w-6xl">
            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
               <div>
-                <div className="text-3xl font-extrabold">100k+</div>
+                <div className="text-3xl font-extrabold">100+</div>
                 <div className="text-sm font-medium opacity-90">Restaurant Partners</div>
               </div>
               <div>
-                <div className="text-3xl font-extrabold">50+</div>
+                <div className="text-3xl font-extrabold">10+</div>
                 <div className="text-sm font-medium opacity-90">Cities</div>
               </div>
               <div>
-                <div className="text-3xl font-extrabold">30M+</div>
+                <div className="text-3xl font-extrabold">30k+</div>
                 <div className="text-sm font-medium opacity-90">Monthly Orders</div>
               </div>
               <div>
@@ -64,77 +64,108 @@ const Partner: React.FC = () => {
         </div>
       </div>
 
-      {/* Why Partner Section */}
+       {/* Why Partner */}
       <div className="py-20 bg-gray-50">
-         <div className="container mx-auto px-4 max-w-6xl">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">Why partner with FoodWagon?</h2>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-               <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow text-center">
-                  <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                     <Users className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3 text-gray-900">Reach new customers</h3>
-                  <p className="text-gray-500">
-                    Attract new customers and keep them coming back with our massive user base.
-                  </p>
-               </div>
+        <div className="container mx-auto px-4 max-w-6xl">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+            Why partner with this project?
+          </h2>
 
-               <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow text-center">
-                  <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                     <TrendingUp className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3 text-gray-900">Increase Revenue</h3>
-                  <p className="text-gray-500">
-                    See a significant increase in your daily orders and overall revenue.
-                  </p>
-               </div>
+          <div className="grid md:grid-cols-3 gap-8">
 
-               <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow text-center">
-                  <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                     <Wallet className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3 text-gray-900">Weekly Payouts</h3>
-                  <p className="text-gray-500">
-                    Get paid weekly without any hassle. Transparent and timely payments.
-                  </p>
-               </div>
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow text-center">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">
+                Partner Workflow
+              </h3>
+              <p className="text-gray-500">
+                Demonstrates how restaurants register, login,
+                and manage their online presence.
+              </p>
             </div>
-         </div>
-      </div>
 
-      {/* How it works */}
-      <div className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-4xl">
-           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">How it works</h2>
-           
-           <div className="space-y-8">
-              <div className="flex items-start gap-6">
-                 <div className="w-10 h-10 bg-[#fc8019] text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">1</div>
-                 <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Register online</h3>
-                    <p className="text-gray-500">Fill in your details and upload basic documents like FSSAI license and PAN card.</p>
-                 </div>
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow text-center">
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <TrendingUp className="w-8 h-8 text-green-600" />
               </div>
-              
-              <div className="flex items-start gap-6">
-                 <div className="w-10 h-10 bg-[#fc8019] text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">2</div>
-                 <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Menu Setup</h3>
-                    <p className="text-gray-500">Our team will help you digitize your menu and set up your restaurant profile.</p>
-                 </div>
-              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">
+                Order Management
+              </h3>
+              <p className="text-gray-500">
+                Learn how incoming orders, order status,
+                and payouts are handled in real systems.
+              </p>
+            </div>
 
-              <div className="flex items-start gap-6">
-                 <div className="w-10 h-10 bg-[#fc8019] text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">3</div>
-                 <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Start Receiving Orders</h3>
-                    <p className="text-gray-500">Go live and start receiving orders from thousands of hungry customers nearby.</p>
-                 </div>
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow text-center">
+              <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Wallet className="w-8 h-8 text-purple-600" />
               </div>
-           </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">
+                Payments Logic
+              </h3>
+              <p className="text-gray-500">
+                Simulates weekly settlements and revenue tracking
+                for learning purposes.
+              </p>
+            </div>
+
+          </div>
         </div>
       </div>
+
+
+        {/* How it works */}
+      <div className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            How this module works
+          </h2>
+
+          <div className="space-y-8">
+
+            <div className="flex items-start gap-6">
+              <div className="w-10 h-10 bg-[#fc8019] text-white rounded-full flex items-center justify-center font-bold">
+                1
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2">Register</h3>
+                <p className="text-gray-500">
+                  Partner registers using email, phone, and restaurant details.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-6">
+              <div className="w-10 h-10 bg-[#fc8019] text-white rounded-full flex items-center justify-center font-bold">
+                2
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2">Setup Menu</h3>
+                <p className="text-gray-500">
+                  Add menu items, prices, and availability through dashboard.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-6">
+              <div className="w-10 h-10 bg-[#fc8019] text-white rounded-full flex items-center justify-center font-bold">
+                3
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2">Receive Orders</h3>
+                <p className="text-gray-500">
+                  Orders flow from customers → restaurant → delivery.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
 
       {/* CTA Bottom */}
       <div className="bg-[#fc8019] py-16 text-center text-white px-4">
